@@ -16,13 +16,13 @@ public class BoidsView implements ChangeListener, ActionListener {
     private BoidsModel model;
     private int width, height;
     private JButton startButton, stopButton, suspendButton;
-    //private BoidsSimulation controller;
+    private BoidsSimulator controller;
 
-    public BoidsView(BoidsModel model, int width, int height /*BoidsSimulator sim*/) {
+    public BoidsView(BoidsModel model, int width, int height, BoidsSimulator sim) {
         this.model = model;
         this.width = width;
         this.height = height;
-        //this.controller = sim;
+        this.controller = sim;
 
         frame = new JFrame("Boids Simulation");
         frame.setSize(width, height);
@@ -88,7 +88,7 @@ public class BoidsView implements ChangeListener, ActionListener {
 
     public void update(int frameRate) {
         boidsPanel.setFrameRate(frameRate);
-        boidsPanel.repaint();
+        SwingUtilities.invokeLater(() -> boidsPanel.repaint());
     }
 
     @Override
@@ -115,19 +115,22 @@ public class BoidsView implements ChangeListener, ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        /*TODO add button actions here*/
         if (e.getSource() == startButton) {
-            model.setStarted(true);//TODO notify start
-            stopButton.setEnabled(false);
             startButton.setEnabled(false);
             suspendButton.setEnabled(true);
-        } else if (e.getSource() == suspendButton) {
-            model.setSuspended(!model.isSuspended());//TODO notify suspend
-            startButton.setEnabled(true);
-            suspendButton.setEnabled(false);
             stopButton.setEnabled(true);
+            try {
+                this.controller.runSimulation();
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+
+        } else if (e.getSource() == suspendButton) {
+            this.controller.suspendSimulation();
         } else if (e.getSource() == stopButton) {
-            model.reset();
+            this.controller.resetSimulation();
+            startButton.setEnabled(true);
+            stopButton.setEnabled(false);
         }
     }
 }

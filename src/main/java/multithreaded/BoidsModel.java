@@ -1,11 +1,12 @@
 package multithreaded;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class BoidsModel {
 
-    private final List<Boid> boids;
+    private List<Boid> boids;
     private double separationWeight;
     private double alignmentWeight;
     private double cohesionWeight;
@@ -14,8 +15,8 @@ public class BoidsModel {
     private final double maxSpeed;
     private final double perceptionRadius;
     private final double avoidRadius;
-    private boolean started;
-    private boolean suspended;
+    private final int nBoids;
+    private final int nProc;
 
     public BoidsModel(int nboids,
                       double initialSeparationWeight,
@@ -25,25 +26,32 @@ public class BoidsModel {
                       double height,
                       double maxSpeed,
                       double perceptionRadius,
-                      double avoidRadius) {
+                      double avoidRadius, int nProc) {
         separationWeight = initialSeparationWeight;
         alignmentWeight = initialAlignmentWeight;
         cohesionWeight = initialCohesionWeight;
+        this.nBoids = nboids;
         this.width = width;
         this.height = height;
         this.maxSpeed = maxSpeed;
         this.perceptionRadius = perceptionRadius;
         this.avoidRadius = avoidRadius;
-        this.started = false;
-        this.suspended = false;
+        this.nProc = nProc;
+        initialize();
 
-        boids = new ArrayList<>();
-        for (int i = 0; i < nboids; i++) {
+    }
+
+    private void initialize() {
+        this.boids = Collections.synchronizedList(new ArrayList<>());
+        for (int i = 0; i < this.nBoids; i++) {
             P2d pos = new P2d(-width / 2 + Math.random() * width, -height / 2 + Math.random() * height);
             V2d vel = new V2d(Math.random() * maxSpeed / 2 - maxSpeed / 4, Math.random() * maxSpeed / 2 - maxSpeed / 4);
-            boids.add(new Boid(pos, vel));
+            this.boids.add(new Boid(pos, vel));
         }
+    }
 
+    public synchronized List<Boid> getSublist(int from, int to) {
+        return this.boids.subList(from, to);
     }
 
     public synchronized List<Boid> getBoids() {
@@ -109,25 +117,13 @@ public class BoidsModel {
     public synchronized double getPerceptionRadius() {
         return perceptionRadius;
     }
-    /*TODO da riguardarci*/
-    public synchronized boolean isStarted() {
-        return started;
+
+    public synchronized void reset() {
+        initialize();
     }
 
-    public synchronized boolean isSuspended() {
-        return suspended;
-    }
-
-    public synchronized void setStarted(boolean started) {
-        this.started = started;
-    }
-
-    public synchronized void setSuspended(boolean suspended) {
-        this.suspended = suspended;
-    }
-
-    public void reset() {
-
+    public int getProc() {
+        return nProc;
     }
 }
 
