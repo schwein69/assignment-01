@@ -1,4 +1,4 @@
-package multithreaded;
+package executor;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
