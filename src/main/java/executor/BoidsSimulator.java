@@ -1,124 +1,130 @@
 package executor;
 
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class BoidsSimulator {
-    protected AtomicInteger completedWorkers;
-    private BoidsModel model;
+    private final BoidsModel model;
     private Optional<BoidsView> view;
     private final Lock lock;
-    private final Condition Completed;
     private final Condition restartCondition;
-    private List<BoidWorker> workers;
+    private CustomExecutor exec;
 
     private static final int FRAMERATE = 50;
     private int framerate;
-    private volatile boolean running = false;
-    private volatile boolean suspended = false;
-    private volatile boolean restart;
+    private boolean running = false;
+    private boolean resetting = false;
 
 
-    public BoidsSimulator(BoidsModel model, Lock lock, Condition completed, Condition restartCondition) {
-        this.restartCondition = restartCondition;
-        this.completedWorkers = new AtomicInteger(0);
+    public BoidsSimulator(BoidsModel model) {
+        this.lock = new ReentrantLock();
         this.model = model;
-        this.Completed = completed;
+        this.restartCondition = lock.newCondition();
         this.view = Optional.empty();
-        this.lock = lock;
-
+        this.exec = new CustomExecutor(this.model.getBoids(), this.model.getProc(), this.model);
     }
 
     public void attachView(BoidsView view) {
         this.view = Optional.of(view);
     }
 
-    public void suspendSimulation() {
-        this.suspended = !this.suspended;
-        if (!this.suspended) { // If resuming, signal all waiting threads
+    public void startSimulator() {
+        try {
             lock.lock();
-            try {
-                restartCondition.signalAll();
-            } finally {
-                lock.unlock();
-            }
+            this.running = true;
+            restartCondition.signalAll();
+        } finally {
+            lock.unlock();
         }
     }
 
-    public void resetSimulation() {
-        this.running = false;
-        this.completedWorkers = new AtomicInteger(0);
-        for (BoidWorker worker : this.workers) {
-            worker.interrupt();
-            try {
-                worker.join();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+    public void suspendSimulation() {
+        try {
+            lock.lock();
+            this.running = !this.running;
+            restartCondition.signalAll();
+        } finally {
+            lock.unlock();
         }
-        this.workers.clear();
-        model.reset();
     }
+
+
+    public void resetSimulation() {
+        try {
+            lock.lock();
+            this.running = false;
+            this.resetting = true;
+            model.reset();
+        } finally {
+            lock.unlock();
+        }
+    }
+
 
     public void runSimulation() throws InterruptedException {
         if (this.running) return;
-        this.running = true;
-        this.suspended = false;
-        this.workers = new ArrayList<>();
-        this.restart = true;
 
-        var nBoids = model.getBoids().size();
-        var nProc = model.getProc();
-        int batchSize = nBoids / nProc;
-        for (int i = 0; i < nProc; i++) {
-            int startIdx = i * batchSize;
-            int endIdx = (i == nProc - 1) ? nBoids : (i + 1) * batchSize;
-            System.out.println("Faccio partire thread : " + i + " da " + startIdx + " a " + endIdx);
-            BoidWorker worker = new BoidWorker(model, startIdx, endIdx, lock, Completed, restartCondition, restart, completedWorkers);
-            this.workers.add(worker);
-            worker.start();
-        }
-        while (this.running) {
-            var t0 = System.currentTimeMillis();
-            this.lock.lock();
+        while (true) {
             try {
-                while (this.suspended) { // Pause loop if simulation is suspended
-                    restartCondition.await();
-                }
-                System.out.println("Waiting for workers...");
-                this.Completed.await();
-                System.out.println("Received signal from workers");
-
-
-                if (view.isPresent()) {
-                    view.get().update(framerate);
-                    var t1 = System.currentTimeMillis();
-                    var dtElapsed = t1 - t0;
-                    var frameratePeriod = 1000 / FRAMERATE;
-
-                    if (dtElapsed < frameratePeriod) {
-                        try {
-                            Thread.sleep(frameratePeriod - dtElapsed);
-                        } catch (Exception ex) {
+                this.lock.lock();
+                while (!this.running) {
+                    try {
+                        System.out.println("Aspetto");
+                        restartCondition.await();
+                        if (resetting) {
+                            this.exec = new CustomExecutor(this.model.getBoids(), this.model.getProc(), this.model);
                         }
-                        framerate = FRAMERATE;
-                    } else {
-                        framerate = (int) (1000 / dtElapsed);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
                 }
-                //Thread.sleep(5000);
-                this.restartCondition.signalAll();
-
             } finally {
-                lock.unlock();
+                this.lock.unlock();
             }
-        }
 
+            var t0 = System.currentTimeMillis();
+
+            exec.computeVelocity().forEach(f -> {
+                try {
+                    f.get(); // wait all updates done
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            exec.computePosition().forEach(f -> {
+                try {
+                    f.get(); // wait all updates done
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            if (view.isPresent()) {
+                view.get().update(framerate);
+                var t1 = System.currentTimeMillis();
+                System.out.println("Computation Time: " + (t1 - t0) + " ms");
+                var dtElapsed = t1 - t0;
+                var frameratePeriod = 1000 / FRAMERATE;
+
+                if (dtElapsed < frameratePeriod) {
+                    try {
+                        Thread.sleep(frameratePeriod - dtElapsed);
+                    } catch (Exception ex) {
+                    }
+                    framerate = FRAMERATE;
+                } else {
+                    framerate = (int) (1000 / dtElapsed);
+                }
+            }
+
+        }
     }
 
 }
+
+
+
+
 

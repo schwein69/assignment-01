@@ -46,9 +46,10 @@ public class BoidsView implements ChangeListener, ActionListener {
         startButton.addActionListener(this);
         suspendButton = new JButton("Suspend");
         suspendButton.addActionListener(this);
+        suspendButton.setEnabled(false);
         stopButton = new JButton("Stop");
         stopButton.addActionListener(this);
-        stopButton.setEnabled(false);
+        stopButton.setEnabled(true);
 
         buttonPanel.add(startButton);
         buttonPanel.add(suspendButton);
@@ -119,42 +120,19 @@ public class BoidsView implements ChangeListener, ActionListener {
             startButton.setEnabled(false);
             suspendButton.setEnabled(true);
             stopButton.setEnabled(true);
-            SwingWorker<Void, Void> worker = new SwingWorker<>() {
-                @Override
-                protected Void doInBackground() {
-                    try {
-                        controller.runSimulation();
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
-                    return null;
-                }
-            };
-            worker.execute();
-        } else if (e.getSource() == suspendButton) {
-            SwingWorker<Void, Void> worker = new SwingWorker<>() {
-                @Override
-                protected Void doInBackground() {
-                    controller.suspendSimulation();
-                    return null;
-                }
-            };
-            worker.execute();
-        } else if (e.getSource() == stopButton) {
-            SwingWorker<Void, Void> worker = new SwingWorker<>() {
-                @Override
-                protected Void doInBackground() {
-                    controller.resetSimulation();
-                    return null;
-                }
+            controller.startSimulator();
 
-                @Override
-                protected void done() {
-                    startButton.setEnabled(true);
-                    stopButton.setEnabled(false);
-                }
-            };
-            worker.execute();
+        } else if (e.getSource() == suspendButton) {
+
+            controller.suspendSimulation();
+
+        } else if (e.getSource() == stopButton) {
+
+            controller.resetSimulation();
+            startButton.setEnabled(true);
+            suspendButton.setEnabled(false);
+            stopButton.setEnabled(false);
+
         }
     }
 }

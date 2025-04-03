@@ -1,12 +1,8 @@
 package executor;
 
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 public class BoidsSimulation {
 
-    final static int N_BOIDS = 1500;
+    //final static int N_BOIDS = 1500;
 
     final static double SEPARATION_WEIGHT = 1.0;
     final static double ALIGNMENT_WEIGHT = 1.0;
@@ -20,27 +16,28 @@ public class BoidsSimulation {
 
     final static int SCREEN_WIDTH = 800;
     final static int SCREEN_HEIGHT = 800;
-    private static Lock lock;
-    private static Condition completed;
-    private static Condition restartCondition;
-    private final static int nProcessors = Runtime.getRuntime().availableProcessors();
+    final static int START_SCREEN_WIDTH = 400;
+    final static int START_SCREEN_HEIGHT = 150;
+    private final static int nProcessors = Runtime.getRuntime().availableProcessors() + 1;
 
     public static void main(String[] args) throws InterruptedException {
-        lock = new ReentrantLock();
-        completed = lock.newCondition();
-        restartCondition = lock.newCondition();
-        System.out.println("numero thread " + nProcessors);
-        var model = new BoidsModel(
-                N_BOIDS,
-                SEPARATION_WEIGHT, ALIGNMENT_WEIGHT, COHESION_WEIGHT,
-                ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT,
-                MAX_SPEED,
-                PERCEPTION_RADIUS,
-                AVOID_RADIUS, nProcessors);
-        var sim = new BoidsSimulator(model, lock, completed, restartCondition);
-        var view = new BoidsView(model, SCREEN_WIDTH, SCREEN_HEIGHT, sim);
+        var startScreen = new StartView(START_SCREEN_WIDTH, START_SCREEN_HEIGHT);
+        try {
+            var model = new BoidsModel(
+                    startScreen.getBoidsCount(),
+                    SEPARATION_WEIGHT, ALIGNMENT_WEIGHT, COHESION_WEIGHT,
+                    ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT,
+                    MAX_SPEED,
+                    PERCEPTION_RADIUS,
+                    AVOID_RADIUS, nProcessors);
+            var sim = new BoidsSimulator(model);
+            var view = new BoidsView(model, SCREEN_WIDTH, SCREEN_HEIGHT, sim);
 
-        sim.attachView(view);
-        //sim.runSimulation();
+            sim.attachView(view);
+            sim.runSimulation();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
