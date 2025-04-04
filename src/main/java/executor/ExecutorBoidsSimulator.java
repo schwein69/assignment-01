@@ -45,6 +45,7 @@ public class ExecutorBoidsSimulator implements Simulator {
         }
     }
 
+
     @Override
     public void suspendSimulator() {
         try {

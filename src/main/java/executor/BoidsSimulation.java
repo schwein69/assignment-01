@@ -19,7 +19,7 @@ public class BoidsSimulation {
     static final double PERCEPTION_RADIUS = 50.0;
     static final double AVOID_RADIUS = 20.0;
 
-    final static int SCREEN_WIDTH = 800;
+    final static int SCREEN_WIDTH = 1200;
     final static int SCREEN_HEIGHT = 800;
     final static int START_SCREEN_WIDTH = 400;
     final static int START_SCREEN_HEIGHT = 150;
