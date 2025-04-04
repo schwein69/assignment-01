@@ -1,12 +1,15 @@
 package executor;
 
+import multithreaded.Model.*;
+import multithreaded.Simulator;
+import multithreaded.View.*;
 
 import java.util.Optional;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class BoidsSimulator {
+public class ExecutorBoidsSimulator implements Simulator {
     private final BoidsModel model;
     private Optional<BoidsView> view;
     private final Lock lock;
@@ -19,7 +22,7 @@ public class BoidsSimulator {
     private boolean resetting = false;
 
 
-    public BoidsSimulator(BoidsModel model) {
+    public ExecutorBoidsSimulator(BoidsModel model) {
         this.lock = new ReentrantLock();
         this.model = model;
         this.restartCondition = lock.newCondition();
@@ -31,6 +34,7 @@ public class BoidsSimulator {
         this.view = Optional.of(view);
     }
 
+    @Override
     public void startSimulator() {
         try {
             lock.lock();
@@ -41,7 +45,8 @@ public class BoidsSimulator {
         }
     }
 
-    public void suspendSimulation() {
+    @Override
+    public void suspendSimulator() {
         try {
             lock.lock();
             this.running = !this.running;
@@ -51,8 +56,8 @@ public class BoidsSimulator {
         }
     }
 
-
-    public void resetSimulation() {
+    @Override
+    public void resetSimulator() {
         try {
             lock.lock();
             this.running = false;
@@ -63,7 +68,7 @@ public class BoidsSimulator {
         }
     }
 
-
+    @Override
     public void runSimulation() throws InterruptedException {
         if (this.running) return;
 

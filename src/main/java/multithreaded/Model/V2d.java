@@ -7,7 +7,7 @@
  * Use is subject to license terms.
  *
  */
-package executor;
+package multithreaded.Model;
 
 /**
  *

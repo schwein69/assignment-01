@@ -1,5 +1,10 @@
 package executor;
 
+import executor.ExecutorBoidsSimulator;
+import multithreaded.Simulator;
+import multithreaded.View.*;
+import multithreaded.Model.*;
+
 public class BoidsSimulation {
 
     //final static int N_BOIDS = 1500;
@@ -24,13 +29,13 @@ public class BoidsSimulation {
         var startScreen = new StartView(START_SCREEN_WIDTH, START_SCREEN_HEIGHT);
         try {
             var model = new BoidsModel(
-                    startScreen.getBoidsCount(),
+                    startScreen.getBoidCount(),
                     SEPARATION_WEIGHT, ALIGNMENT_WEIGHT, COHESION_WEIGHT,
                     ENVIRONMENT_WIDTH, ENVIRONMENT_HEIGHT,
                     MAX_SPEED,
                     PERCEPTION_RADIUS,
                     AVOID_RADIUS, nProcessors);
-            var sim = new BoidsSimulator(model);
+            ExecutorBoidsSimulator sim = new ExecutorBoidsSimulator(model);
             var view = new BoidsView(model, SCREEN_WIDTH, SCREEN_HEIGHT, sim);
 
             sim.attachView(view);

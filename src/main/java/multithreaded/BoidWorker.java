@@ -1,5 +1,9 @@
 package multithreaded;
 
+import multithreaded.Barrier.Barrier;
+import multithreaded.Model.Boid;
+import multithreaded.Model.BoidsModel;
+
 import java.util.List;
 
 public class BoidWorker extends Thread {

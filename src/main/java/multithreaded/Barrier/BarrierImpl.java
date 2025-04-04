@@ -1,4 +1,4 @@
-package multithreaded;
+package multithreaded.Barrier;
 
 public class BarrierImpl implements Barrier {
 

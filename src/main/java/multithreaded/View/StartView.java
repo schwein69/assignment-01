@@ -1,4 +1,4 @@
-package executor;
+package multithreaded.View;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,13 +9,14 @@ public class StartView implements ActionListener {
     private final JFrame frame;
     private final JButton startButton;
     private final JTextField boidsCountField;
-    private int result = 0;
+    private Integer result = null;
 
     public StartView(int width, int height) {
         frame = new JFrame("Boids Simulation");
         frame.setSize(width, height);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
+
 
         JPanel panel = new JPanel();
         LayoutManager layout = new BorderLayout();
@@ -50,18 +51,18 @@ public class StartView implements ActionListener {
                 JOptionPane.showMessageDialog(frame,
                         "Need a positive number of boids.",
                         "Invalid Input", JOptionPane.ERROR_MESSAGE);
-                result = 0;
+                result = null;
             }
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(frame,
                     "Need a valid number.",
                     "Invalid Input", JOptionPane.ERROR_MESSAGE);
-            result = 0;
+            result = null;
         }
     }
 
-    public synchronized int getBoidsCount() throws InterruptedException {
-        while (result == 0) {
+    public synchronized int getBoidCount() throws InterruptedException {
+        while (result == null) {
             wait();
         }
         frame.dispose();

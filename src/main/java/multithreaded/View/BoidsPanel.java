@@ -1,4 +1,7 @@
-package multithreaded;
+package multithreaded.View;
+
+import multithreaded.Model.Boid;
+import multithreaded.Model.BoidsModel;
 
 import javax.swing.*;
 import java.awt.*;

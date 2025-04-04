@@ -1,5 +1,9 @@
 package multithreaded;
 
+import multithreaded.Model.BoidsModel;
+import multithreaded.View.BoidsView;
+import multithreaded.View.StartView;
+
 public class BoidsSimulation {
 
     //final static int N_BOIDS = 1500;
@@ -30,7 +34,7 @@ public class BoidsSimulation {
                     MAX_SPEED,
                     PERCEPTION_RADIUS,
                     AVOID_RADIUS, nProcessors);
-            var sim = new BoidsSimulator(model);
+            var sim = new MultithreadBoidsSimulator(model);
             var view = new BoidsView(model, SCREEN_WIDTH, SCREEN_HEIGHT, sim);
 
             sim.attachView(view);

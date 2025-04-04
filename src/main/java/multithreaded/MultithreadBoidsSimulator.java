@@ -1,5 +1,11 @@
 package multithreaded;
 
+import multithreaded.Barrier.Barrier;
+import multithreaded.Barrier.BarrierImpl;
+import multithreaded.Model.Boid;
+import multithreaded.Model.BoidsModel;
+import multithreaded.View.BoidsView;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -7,7 +13,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class BoidsSimulator {
+public class MultithreadBoidsSimulator implements Simulator {
     private Barrier barrierVel, barrierPos, barrierSync;
     private final BoidsModel model;
     private Optional<BoidsView> view;
@@ -22,7 +28,7 @@ public class BoidsSimulator {
     private boolean resetting = false;
 
 
-    public BoidsSimulator(BoidsModel model) {
+    public MultithreadBoidsSimulator(BoidsModel model) {
         this.lock = new ReentrantLock();
         this.model = model;
         this.restartCondition = lock.newCondition();
@@ -33,6 +39,7 @@ public class BoidsSimulator {
         this.view = Optional.of(view);
     }
 
+    @Override
     public void startSimulator() {
         try {
             lock.lock();
@@ -43,7 +50,8 @@ public class BoidsSimulator {
         }
     }
 
-    public void suspendSimulation() {
+    @Override
+    public void suspendSimulator() {
         try {
             lock.lock();
             this.running = !this.running;
@@ -53,8 +61,8 @@ public class BoidsSimulator {
         }
     }
 
-
-    public void resetSimulation() {
+    @Override
+    public void resetSimulator() {
         try {
             lock.lock();
             this.running = false;
@@ -79,7 +87,7 @@ public class BoidsSimulator {
 
     }
 
-    private void initializzation() {
+    private void initialization() {
         var nBoids = model.getBoids().size();
         var nProc = model.getProc();
         int batchSize = nBoids / nProc;
@@ -99,10 +107,11 @@ public class BoidsSimulator {
         }
     }
 
+    @Override
     public void runSimulation() throws InterruptedException {
         if (this.running) return;
 
-        initializzation();
+        initialization();
 
         while (true) {
             try {
@@ -112,7 +121,7 @@ public class BoidsSimulator {
                         System.out.println("Aspetto");
                         restartCondition.await();
                         if (resetting) {
-                            initializzation();
+                            initialization();
                         }
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
@@ -137,7 +146,7 @@ public class BoidsSimulator {
                 var t1 = System.currentTimeMillis();
                 var dtElapsed = t1 - t0;
                 var frameratePeriod = 1000 / FRAMERATE;
-
+                System.out.println("Computation Time: " + (t1 - t0) + " ms");
                 if (dtElapsed < frameratePeriod) {
                     try {
                         Thread.sleep(frameratePeriod - dtElapsed);

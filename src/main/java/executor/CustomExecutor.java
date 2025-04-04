@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
+import multithreaded.Model.*;
+
 public class CustomExecutor {
     private final BoidsModel model;
     private List<Boid> boids;

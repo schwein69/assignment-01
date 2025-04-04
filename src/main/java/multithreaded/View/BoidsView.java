@@ -1,4 +1,8 @@
-package multithreaded;
+package multithreaded.View;
+
+
+import multithreaded.Model.BoidsModel;
+import multithreaded.Simulator;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -16,9 +20,10 @@ public class BoidsView implements ChangeListener, ActionListener {
     private BoidsModel model;
     private int width, height;
     private JButton startButton, stopButton, suspendButton;
-    private BoidsSimulator controller;
+    private Simulator controller;
 
-    public BoidsView(BoidsModel model, int width, int height, BoidsSimulator sim) {
+
+    public BoidsView(BoidsModel model, int width, int height, Simulator sim) {
         this.model = model;
         this.width = width;
         this.height = height;
@@ -124,11 +129,11 @@ public class BoidsView implements ChangeListener, ActionListener {
 
         } else if (e.getSource() == suspendButton) {
 
-            controller.suspendSimulation();
+            controller.suspendSimulator();
 
         } else if (e.getSource() == stopButton) {
 
-            controller.resetSimulation();
+            controller.resetSimulator();
             startButton.setEnabled(true);
             suspendButton.setEnabled(false);
             stopButton.setEnabled(false);

@@ -1,4 +1,4 @@
-package executor;
+package multithreaded.Model;
 
 import java.util.ArrayList;
 import java.util.List;
