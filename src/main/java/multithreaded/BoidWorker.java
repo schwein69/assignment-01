@@ -29,22 +29,27 @@ public class BoidWorker extends Thread {
                 //System.out.println("Worker " + Thread.currentThread().getName() + " detected interrupt. Exiting...");
                 return; // Exit thread properly
             }
+            /*Wait everybody*/
             try {
                 barrierSync.hitAndWaitAll();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            for (Boid boid : boids) {
-                boid.updateVelocity(model);
+            /*Update velocity first*/
+            for (Boid boid : this.boids) {
+                boid.updateVelocity(this.model);
             }
+            /*Wait everybody*/
             try {
                 barrierVel.hitAndWaitAll();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            for (Boid boid : boids) {
-                boid.updatePos(model);
+            /*Update position then*/
+            for (Boid boid : this.boids) {
+                boid.updatePos(this.model);
             }
+            /*Wait everybody*/
             try {
                 barrierPos.hitAndWaitAll();
             } catch (InterruptedException e) {
