@@ -8,8 +8,10 @@ import java.util.List;
 
 public class BoidWorker extends Thread {
     private final BoidsModel model;//Need for import variables
-    private List<Boid> boids;
-    private Barrier barrierVel, barrierPos, barrierSync;
+    private final List<Boid> boids;
+    private final Barrier barrierVel;
+    private final Barrier barrierPos;
+    private final Barrier barrierSync;
 
 
     public BoidWorker(BoidsModel model, List<Boid> boids, Barrier barrierVel, Barrier barrierPos, Barrier barrierSync) {
@@ -24,7 +26,7 @@ public class BoidWorker extends Thread {
     public void run() {
         while (true) {
             if (Thread.interrupted()) {
-                System.out.println("Worker " + Thread.currentThread().getName() + " detected interrupt. Exiting...");
+                //System.out.println("Worker " + Thread.currentThread().getName() + " detected interrupt. Exiting...");
                 return; // Exit thread properly
             }
             try {

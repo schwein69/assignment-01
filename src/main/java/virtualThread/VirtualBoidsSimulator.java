@@ -1,33 +1,34 @@
-package executor;
+package virtualThread;
 
-import multithreaded.Model.*;
+import multithreaded.Model.Boid;
+import multithreaded.Model.BoidsModel;
 import multithreaded.Simulator;
-import multithreaded.View.*;
+import multithreaded.View.BoidsView;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ExecutorBoidsSimulator implements Simulator {
+public class VirtualBoidsSimulator implements Simulator {
     private final BoidsModel model;
     private Optional<BoidsView> view;
     private final Lock lock;
     private final Condition restartCondition;
-    private CustomExecutor exec;
 
     private static final int FRAMERATE = 50;
     private int framerate;
     private boolean running = false;
-    private boolean resetting = false;
 
 
-    public ExecutorBoidsSimulator(BoidsModel model) {
+    public VirtualBoidsSimulator(BoidsModel model) {
         this.lock = new ReentrantLock();
         this.model = model;
         this.restartCondition = lock.newCondition();
         this.view = Optional.empty();
-        this.exec = new CustomExecutor(this.model.getBoids(), this.model.getProc(), this.model);
     }
 
     public void attachView(BoidsView view) {
@@ -51,7 +52,9 @@ public class ExecutorBoidsSimulator implements Simulator {
         try {
             lock.lock();
             this.running = !this.running;
-            restartCondition.signalAll();
+            if (this.running) {
+                restartCondition.signalAll();
+            }
         } finally {
             lock.unlock();
         }
@@ -62,8 +65,6 @@ public class ExecutorBoidsSimulator implements Simulator {
         try {
             lock.lock();
             this.running = false;
-            this.exec.shutdown();
-            this.resetting = true;
             model.reset();
         } finally {
             lock.unlock();
@@ -81,9 +82,6 @@ public class ExecutorBoidsSimulator implements Simulator {
                     try {
                         System.out.println("Aspetto");
                         restartCondition.await();
-                        if (resetting) {
-                            this.exec = new CustomExecutor(this.model.getBoids(), this.model.getProc(), this.model);
-                        }
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -93,19 +91,42 @@ public class ExecutorBoidsSimulator implements Simulator {
             }
 
             var t0 = System.currentTimeMillis();
+            var listVelocity = new ArrayList<Thread>();
+            var listPosition = new ArrayList<Thread>();
+            for (Boid boid : this.model.getBoids()) {
+                Thread v = Thread.ofVirtual().unstarted(() -> {
+                    try {
+                        boid.updateVelocity(this.model);
+                    } catch (Exception ex) {
+                    }
+                });
+                v.start();
+                listVelocity.add(v);
+            }
 
-            exec.computeVelocity().forEach(f -> {
+            listVelocity.forEach(thread -> {
                 try {
-                    f.get(); // wait all updates done
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    thread.join();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             });
-            exec.computePosition().forEach(f -> {
+            for (Boid boid : this.model.getBoids()) {
+                Thread p = Thread.ofVirtual().unstarted(() -> {
+                    try {
+                        boid.updatePos(this.model);
+                    } catch (Exception ex) {
+                    }
+                });
+                p.start();
+                listPosition.add(p);
+            }
+
+            listPosition.forEach(thread -> {
                 try {
-                    f.get(); // wait all updates done
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    thread.join();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
             });
             if (view.isPresent()) {

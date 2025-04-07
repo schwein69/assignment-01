@@ -7,7 +7,7 @@ public class BoidsSimulator {
     private BoidsModel model;
     private Optional<BoidsView> view;
     
-    private static final int FRAMERATE = 25;
+    private static final int FRAMERATE = 50;
     private int framerate;
     
     public BoidsSimulator(BoidsModel model) {
@@ -48,6 +48,7 @@ public class BoidsSimulator {
             	view.get().update(framerate);
             	var t1 = System.currentTimeMillis();
                 var dtElapsed = t1 - t0;
+                System.out.println("Computation Time: " + (t1 - t0) + " ms");
                 var framratePeriod = 1000/FRAMERATE;
                 
                 if (dtElapsed < framratePeriod) {		

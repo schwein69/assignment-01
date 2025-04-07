@@ -55,7 +55,9 @@ public class MultithreadBoidsSimulator implements Simulator {
         try {
             lock.lock();
             this.running = !this.running;
-            restartCondition.signalAll();
+            if (this.running) {
+                restartCondition.signalAll();
+            }
         } finally {
             lock.unlock();
         }
@@ -68,14 +70,14 @@ public class MultithreadBoidsSimulator implements Simulator {
             this.running = false;
             this.resetting = true;
             for (BoidWorker worker : this.workers) {
-                worker.interrupt(); // Interrupt worker threads
+                worker.interrupt();
             }
 
             for (BoidWorker worker : this.workers) {
                 try {
-                    worker.join(); // Ensure they have stopped before proceeding
+                    worker.join();
                 } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt(); // Preserve the interrupt status
+                    Thread.currentThread().interrupt();
                 }
             }
             this.workers.clear();
@@ -118,7 +120,6 @@ public class MultithreadBoidsSimulator implements Simulator {
                 this.lock.lock();
                 while (!this.running) {
                     try {
-                        System.out.println("Aspetto");
                         restartCondition.await();
                         if (resetting) {
                             initialization();

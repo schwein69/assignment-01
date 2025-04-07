@@ -19,6 +19,7 @@ public class CustomExecutor {
 
     public List<Future<?>> computeVelocity() {
         List<Future<?>> velocityResults = new ArrayList<>();
+        if (executor.isShutdown()) return null;
         for (Boid boid : boids) {
             try {
                 Future<?> res = executor.submit(() -> boid.updateVelocity(this.model));
@@ -32,6 +33,7 @@ public class CustomExecutor {
 
     public List<Future<?>> computePosition() {
         List<Future<?>> positionResults = new ArrayList<>();
+        if (executor.isShutdown()) return null;
         for (Boid boid : boids) {
             try {
                 Future<?> res = executor.submit(() -> boid.updatePos(this.model));
@@ -43,22 +45,15 @@ public class CustomExecutor {
         return positionResults;
     }
 
-    /* public void resetExecutor() {
-         // Shutdown the old executor in the background
-         new Thread(() -> {
-             this.executor.shutdownNow(); // Interrupt running tasks
-             try {
-                 if (!this.executor.awaitTermination(1, TimeUnit.SECONDS)) {
-                     System.err.println("Old executor did not terminate cleanly");
-                 }
-             } catch (InterruptedException e) {
-                 Thread.currentThread().interrupt();
-             }
-         }).start();
-     }*/
-    public void shutdown() throws InterruptedException {
+    public void shutdown() {
         executor.shutdown();
-        executor.awaitTermination(1, TimeUnit.SECONDS);
+        try {
+            if (!executor.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+        }
     }
 
 }
