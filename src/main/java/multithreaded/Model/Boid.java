@@ -55,7 +55,7 @@ public class Boid {
         if (pos.y() >= model.getMaxY()) pos = pos.sum(new V2d(0, -model.getHeight()));
     }
 
-    public void updateVelocity(BoidsModel model) {
+    public synchronized void updateVelocity(BoidsModel model) {
 
         /* change velocity vector according to separation, alignment, cohesion */
 
@@ -78,7 +78,7 @@ public class Boid {
         }
     }
 
-    public void updatePos(BoidsModel model) {
+    public synchronized void updatePos(BoidsModel model) {
 
         /* Update position */
 
