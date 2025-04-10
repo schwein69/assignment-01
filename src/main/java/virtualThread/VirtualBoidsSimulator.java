@@ -90,7 +90,7 @@ public class VirtualBoidsSimulator implements Simulator {
                 this.lock.unlock();
             }
 
-            var t0 = System.currentTimeMillis();
+            var t0 = System.currentTimeMillis();    
             var listVelocity = new ArrayList<Thread>();
             var listPosition = new ArrayList<Thread>();
             for (Boid boid : this.model.getBoids()) {
