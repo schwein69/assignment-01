@@ -1,4 +1,4 @@
-package JPF.multithreaded.Model;
+package JPF.Model;
 
 /**
  * 2-dimensional vector

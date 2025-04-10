@@ -1,6 +1,5 @@
-package JPF.multithreaded.Barrier;
+package JPF.Barrier;
 
-import multithreaded.Barrier.Barrier;
 
 public class BarrierImpl implements Barrier {
 

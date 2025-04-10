@@ -1,4 +1,4 @@
-package JPF.multithreaded;
+package JPF;
 
 public interface Simulator {
     void runSimulation() throws InterruptedException;

@@ -1,9 +1,9 @@
-package JPF.multithreaded.View;
+package JPF.View;
 
 
-import multithreaded.Model.BoidsModel;
-import multithreaded.Simulator;
-import multithreaded.View.BoidsPanel;
+import JPF.Model.BoidsModel;
+import JPF.Simulator;
+import JPF.View.*;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -16,7 +16,7 @@ import java.util.Hashtable;
 public class BoidsView implements ChangeListener, ActionListener {
 
     private JFrame frame;
-    private multithreaded.View.BoidsPanel boidsPanel;
+    private BoidsPanel boidsPanel;
     private JSlider cohesionSlider, separationSlider, alignmentSlider;
     private BoidsModel model;
     private int width, height;

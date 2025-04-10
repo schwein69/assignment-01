@@ -1,8 +1,6 @@
-package JPF.multithreaded.View;
+package JPF.View;
 
-import multithreaded.Model.Boid;
-import multithreaded.Model.BoidsModel;
-import multithreaded.View.BoidsView;
+import JPF.Model.*;
 
 import javax.swing.*;
 import java.awt.*;

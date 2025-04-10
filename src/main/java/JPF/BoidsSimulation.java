@@ -1,7 +1,6 @@
-package JPF.multithreaded;
+package JPF;
 
-import multithreaded.Model.BoidsModel;
-import multithreaded.MultithreadBoidsSimulator;
+import JPF.Model.BoidsModel;
 
 public class BoidsSimulation {
 

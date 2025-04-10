@@ -1,6 +1,6 @@
-package JPF.multithreaded.Model;
+package JPF.Model;
 
-import multithreaded.Model.V2d;
+import JPF.Model.*;
 
 /**
  * 2-dimensional point

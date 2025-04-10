@@ -1,8 +1,7 @@
-package JPF.multithreaded;
+package JPF;
 
-import multithreaded.Barrier.Barrier;
-import multithreaded.Model.Boid;
-import multithreaded.Model.BoidsModel;
+import JPF.Barrier.*;
+import JPF.Model.*;
 
 import java.util.List;
 

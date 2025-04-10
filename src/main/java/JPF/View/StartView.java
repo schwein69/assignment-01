@@ -1,4 +1,4 @@
-package JPF.multithreaded.View;
+package JPF.View;
 
 import javax.swing.*;
 import java.awt.*;

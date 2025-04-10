@@ -1,8 +1,4 @@
-package JPF.multithreaded.Model;
-
-import multithreaded.Model.BoidsModel;
-import multithreaded.Model.P2d;
-import multithreaded.Model.V2d;
+package JPF.Model;
 
 import java.util.ArrayList;
 import java.util.List;

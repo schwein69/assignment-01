@@ -1,15 +1,11 @@
-package JPF.multithreaded.Model;
-
-import multithreaded.Model.Boid;
-import multithreaded.Model.P2d;
-import multithreaded.Model.V2d;
+package JPF.Model;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BoidsModel {
 
-    private List<multithreaded.Model.Boid> boids;
+    private List<Boid> boids;
     private double separationWeight;
     private double alignmentWeight;
     private double cohesionWeight;
@@ -47,8 +43,8 @@ public class BoidsModel {
 
     public BoidsModel(BoidsModel other) {
         this.boids = new ArrayList<>();
-        for (multithreaded.Model.Boid b : other.boids) {
-            this.boids.add(new multithreaded.Model.Boid(b.getPos(), b.getVel()));
+        for (Boid b : other.boids) {
+            this.boids.add(new Boid(b.getPos(), b.getVel()));
         }
 
         this.separationWeight = other.separationWeight;
@@ -66,9 +62,9 @@ public class BoidsModel {
     private void initialize() {
         this.boids = new ArrayList<>();
         for (int i = 0; i < this.nBoids; i++) {
-            multithreaded.Model.P2d pos = new P2d(-width / 2 + Math.random() * width, -height / 2 + Math.random() * height);
+            P2d pos = new P2d(-width / 2 + Math.random() * width, -height / 2 + Math.random() * height);
             V2d vel = new V2d(Math.random() * maxSpeed / 2 - maxSpeed / 4, Math.random() * maxSpeed / 2 - maxSpeed / 4);
-            this.boids.add(new multithreaded.Model.Boid(pos, vel));
+            this.boids.add(new Boid(pos, vel));
         }
     }
 
